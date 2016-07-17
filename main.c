@@ -7,6 +7,29 @@
  * file that was distributed with this source code.
  */
 
+// Configuration
+
+#define BUTTONS_DDR      DDRB
+#define BUTTONS_PORT     PORTB
+#define BUTTONS_PIN      PINB
+#define MINUS_BUTTON_BIT PB1
+#define PLUS_BUTTON_BIT  PB2
+#define SET_BUTTON_BIT   PB3
+#define RESET_BUTTON_BIT PB4
+
+#define BUTTONS_MASK (1 << MINUS_BUTTON_BIT) | (1 << PLUS_BUTTON_BIT) | \
+                         (1 << SET_BUTTON_BIT) | (1 << RESET_BUTTON_BIT)
+
+#define LED_DDR  DDRC
+#define LED_PORT PORTC
+#define LED_PIN  PINC
+#define LED_BIT  PC0
+
+#define RELAY_DDR  DDRC
+#define RELAY_PORT PORTC
+#define RELAY_PIN  PINC
+#define RELAY_BIT  PC1
+
 #define IDLE_ACTION         0
 #define SHOW_TEMP_ACTION    1
 #define CONTROL_TEMP_ACTION 2
@@ -109,15 +132,19 @@ ISR(TIMER1_COMPA_vect)
 
 		if (temp >= 0xFC90) {
 			if (trigger_on <= 0x07D0 || temp <= trigger_on) {
-				PORTC |= (3 << PC0);
+				LED_PORT |= (1 << LED_BIT);
+				RELAY_PORT |= (1 << RELAY_BIT);
 			} else if (trigger_off >= 0xFC90 && temp >= trigger_off) {
-				PORTC &= ~(3 << PC0);
+				LED_PORT &= ~(1 << LED_BIT);
+				RELAY_PORT &= ~(1 << RELAY_BIT);
 			}
 		} else {
 			if (trigger_on <= 0x07D0 && temp <= trigger_on) {
-				PORTC |= (3 << PC0);
+				LED_PORT |= (1 << LED_BIT);
+				RELAY_PORT |= (1 << RELAY_BIT);
 			} else if (trigger_off >= 0xFC90 || temp >= trigger_off) {
-				PORTC &= ~(3 << PC0);
+				LED_PORT &= ~(1 << LED_BIT);
+				RELAY_PORT &= ~(1 << RELAY_BIT);
 			}
 		}
 	}
@@ -172,25 +199,25 @@ void show_temp()
 	action = SHOW_TEMP_ACTION;
 
 	for (;;) {
-		if (~PINB & (1 << PB1)) {
+		if (~BUTTONS_PIN & (1 << MINUS_BUTTON_BIT)) {
 			_delay_ms(200);
-			while (~PINB & (1 << PB1));
+			while (~BUTTONS_PIN & (1 << MINUS_BUTTON_BIT));
 			if (brightness > 1) {
 				brightness--;
 				eeprom_update_byte(&ee_brightness, brightness);
 			}
 		}
-		else if (~PINB & (1 << PB2)) {
+		else if (~BUTTONS_PIN & (1 << PLUS_BUTTON_BIT)) {
 			_delay_ms(200);
-			while (~PINB & (1 << PB2));
+			while (~BUTTONS_PIN & (1 << PLUS_BUTTON_BIT));
 			if (brightness < 15) {
 				brightness++;
 				eeprom_update_byte(&ee_brightness, brightness);
 			}
 		}
-		else if (~PINB & (1 << PB3)) {
+		else if (~BUTTONS_PIN & (1 << SET_BUTTON_BIT)) {
 			_delay_ms(200);
-			while (~PINB & (1 << PB3));
+			while (~BUTTONS_PIN & (1 << SET_BUTTON_BIT));
 			return;
 		}
 	}
@@ -203,27 +230,27 @@ void change_task()
 
 	for (;;) {
 		uint8_t reset = 1;
-		if (~PINB & (1 << PB1)) {
-			while (~PINB & (1 << PB1) && (task <= 0x07D0 || task > 0xFC90)) {
+		if (~BUTTONS_PIN & (1 << MINUS_BUTTON_BIT)) {
+			while (~BUTTONS_PIN & (1 << MINUS_BUTTON_BIT) && (task <= 0x07D0 || task > 0xFC90)) {
 				pressed_button_delay(&reset);
 				fill_display_register(--task);
 			}
 		}
-		else if (~PINB & (1 << PB2)) {
-			while (~PINB & (1 << PB2) && (task < 0x07D0 || task >= 0xFC90)) {
+		else if (~BUTTONS_PIN & (1 << PLUS_BUTTON_BIT)) {
+			while (~BUTTONS_PIN & (1 << PLUS_BUTTON_BIT) && (task < 0x07D0 || task >= 0xFC90)) {
 				pressed_button_delay(&reset);
 				fill_display_register(++task);
 			}
 		}
-		else if (~PINB & (1 << PB3)) {
+		else if (~BUTTONS_PIN & (1 << SET_BUTTON_BIT)) {
 			_delay_ms(200);
-			while (~PINB & (1 << PB3));
+			while (~BUTTONS_PIN & (1 << SET_BUTTON_BIT));
 			eeprom_update_word(&ee_task, task);
 			return;
 		}
-		else if (~PINB & (1 << PB4)) {
+		else if (~BUTTONS_PIN & (1 << RESET_BUTTON_BIT)) {
 			_delay_ms(200);
-			while (~PINB & (1 << PB4));
+			while (~BUTTONS_PIN & (1 << RESET_BUTTON_BIT));
 			task = 0x0140; // +20 oC
 			fill_display_register(task);
 		}
@@ -237,27 +264,27 @@ void change_zone()
 
 	for (;;) {
 		uint8_t reset = 1;
-		if (~PINB & (1 << PB1)) {
-			while (~PINB & (1 << PB1) && zone > 0x0001) {
+		if (~BUTTONS_PIN & (1 << MINUS_BUTTON_BIT)) {
+			while (~BUTTONS_PIN & (1 << MINUS_BUTTON_BIT) && zone > 0x0001) {
 				pressed_button_delay(&reset);
 				fill_display_register(--zone);
 			}
 		}
-		else if (~PINB & (1 << PB2)) {
-			while (~PINB & (1 << PB2) && zone < 0x0640) {
+		else if (~BUTTONS_PIN & (1 << PLUS_BUTTON_BIT)) {
+			while (~BUTTONS_PIN & (1 << PLUS_BUTTON_BIT) && zone < 0x0640) {
 				pressed_button_delay(&reset);
 				fill_display_register(++zone);
 			}
 		}
-		else if (~PINB & (1 << PB3)) {
+		else if (~BUTTONS_PIN & (1 << SET_BUTTON_BIT)) {
 			_delay_ms(200);
-			while (~PINB & (1 << PB3));
+			while (~BUTTONS_PIN & (1 << SET_BUTTON_BIT));
 			eeprom_update_word(&ee_zone, zone);
 			return;
 		}
-		else if (~PINB & (1 << PB4)) {
+		else if (~BUTTONS_PIN & (1 << RESET_BUTTON_BIT)) {
 			_delay_ms(200);
-			while (~PINB & (1 << PB4));
+			while (~BUTTONS_PIN & (1 << RESET_BUTTON_BIT));
 			zone = 0x0008; // 0,5 oC
 			fill_display_register(zone);
 		}
@@ -269,31 +296,32 @@ void control_temp()
 	action = SHOW_TEMP_ACTION | CONTROL_TEMP_ACTION;
 	fill_display_register(temp);
 
-	DDRC |= (1 << PC0);
-	PORTC &= ~(1 << PC0); // Включение индикации
+	LED_DDR |= (1 << LED_BIT);
+	LED_PORT &= ~(1 << LED_BIT); // Включение индикации
 
 	for (;;) {
-		if (~PINB & (1 << PB1)) {
+		if (~BUTTONS_PIN & (1 << MINUS_BUTTON_BIT)) {
 			_delay_ms(200);
-			while (~PINB & (1 << PB1));
+			while (~BUTTONS_PIN & (1 << MINUS_BUTTON_BIT));
 			if (brightness > 1) {
 				brightness--;
 				eeprom_update_byte(&ee_brightness, brightness);
 			}
 		}
-		else if (~PINB & (1 << PB2)) {
+		else if (~BUTTONS_PIN & (1 << PLUS_BUTTON_BIT)) {
 			_delay_ms(200);
-			while (~PINB & (1 << PB2));
+			while (~BUTTONS_PIN & (1 << PLUS_BUTTON_BIT));
 			if (brightness < 15) {
 				brightness++;
 				eeprom_update_byte(&ee_brightness, brightness);
 			}
 		}
-		else if (~PINB & (1 << PB4)) {
+		else if (~BUTTONS_PIN & (1 << RESET_BUTTON_BIT)) {
 			_delay_ms(200);
-			while (~PINB & (1 << PB4));
-			DDRC &= ~(1 << PC0);
-			PORTC &= ~(3 << PC0); // Выключение индикации и управления
+			while (~BUTTONS_PIN & (1 << RESET_BUTTON_BIT));
+			LED_DDR &= ~(1 << LED_BIT);
+			LED_PORT &= ~(1 << LED_BIT);
+			RELAY_PORT &= ~(1 << RELAY_BIT); // Выключение индикации и управления
 			return;
 		}
 	}
@@ -302,10 +330,10 @@ void control_temp()
 int main()
 {
 	// Enable internal pull-up resistors
-	PORTB |= (1 << PB1) | (1 << PB2) | (1 << PB3) | (1 << PB4);
+	BUTTONS_PORT |= BUTTONS_MASK;
 
 	// Конфигурация портов в/в
-	DDRC = (1 << PC1);
+	RELAY_DDR = (1 << RELAY_BIT);
 
 	// Конфигурация 16-битного счетчика
 	OCR1AH = 0x3D;
