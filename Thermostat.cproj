@@ -120,6 +120,9 @@
     </ToolchainSettings>
   </PropertyGroup>
   <ItemGroup>
+    <Compile Include="buttons.c">
+      <SubType>compile</SubType>
+    </Compile>
     <Compile Include="display.c">
       <SubType>compile</SubType>
     </Compile>

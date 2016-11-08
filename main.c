@@ -48,6 +48,7 @@
 #include <avr/interrupt.h>
 #include <avr/io.h>
 
+#include "buttons.h"
 #include "display.h"
 #include "ds18b20.h"
 
@@ -170,54 +171,27 @@ ISR(TIMER2_COMP_vect)
 	i &= 0x0F; // 16 -> 0
 }
 
-void pressed_button_delay(uint8_t *reset)
-{
-	static uint8_t count;
-	static uint8_t compare;
-	static uint8_t cycles;
-	
-	if (*reset) {
-		count = 0;
-		compare = 0x08;
-		cycles = 0xFF;
-		*reset = 0;
-	}
-
-	if (compare && count++ == compare) {
-		count = 0;
-		compare *= 2;
-		cycles /= 2;
-	}
-
-	for (size_t i = 0; i < cycles; i++) {
-		_delay_ms(1);
-	}
-}
-
 void show_temp()
 {
 	action = SHOW_TEMP_ACTION;
 
 	for (;;) {
-		if (~BUTTONS_PIN & (1 << MINUS_BUTTON_BIT)) {
-			_delay_ms(200);
-			while (~BUTTONS_PIN & (1 << MINUS_BUTTON_BIT));
+		if (button_is_pressed(&BUTTONS_PIN, MINUS_BUTTON_BIT)) {
 			if (brightness > 1) {
 				brightness--;
 				eeprom_update_byte(&ee_brightness, brightness);
 			}
+			while(!button_is_released(&BUTTONS_PIN, MINUS_BUTTON_BIT));
 		}
-		else if (~BUTTONS_PIN & (1 << PLUS_BUTTON_BIT)) {
-			_delay_ms(200);
-			while (~BUTTONS_PIN & (1 << PLUS_BUTTON_BIT));
+		else if (button_is_pressed(&BUTTONS_PIN, PLUS_BUTTON_BIT)) {
 			if (brightness < 15) {
 				brightness++;
 				eeprom_update_byte(&ee_brightness, brightness);
 			}
+			while(!button_is_released(&BUTTONS_PIN, PLUS_BUTTON_BIT));
 		}
-		else if (~BUTTONS_PIN & (1 << SET_BUTTON_BIT)) {
-			_delay_ms(200);
-			while (~BUTTONS_PIN & (1 << SET_BUTTON_BIT));
+		else if (button_is_pressed(&BUTTONS_PIN, SET_BUTTON_BIT)) {
+			while(!button_is_released(&BUTTONS_PIN, SET_BUTTON_BIT));
 			return;
 		}
 	}
@@ -230,29 +204,29 @@ void change_task()
 
 	for (;;) {
 		uint8_t reset = 1;
-		if (~BUTTONS_PIN & (1 << MINUS_BUTTON_BIT)) {
-			while (~BUTTONS_PIN & (1 << MINUS_BUTTON_BIT) && (task <= 0x07D0 || task > 0xFC90)) {
-				pressed_button_delay(&reset);
-				fill_display_register(--task);
-			}
+		if (button_is_pressed(&BUTTONS_PIN, MINUS_BUTTON_BIT)) {
+			do {
+				if (task <= 0x07D0 || task > 0xFC90) {
+					fill_display_register(--task);
+				}
+			} while (button_being_pressed(&BUTTONS_PIN, MINUS_BUTTON_BIT, &reset));
 		}
-		else if (~BUTTONS_PIN & (1 << PLUS_BUTTON_BIT)) {
-			while (~BUTTONS_PIN & (1 << PLUS_BUTTON_BIT) && (task < 0x07D0 || task >= 0xFC90)) {
-				pressed_button_delay(&reset);
-				fill_display_register(++task);
-			}
+		else if (button_is_pressed(&BUTTONS_PIN, PLUS_BUTTON_BIT)) {
+			do {
+				if (task < 0x07D0 || task >= 0xFC90) {
+					fill_display_register(++task);
+				}
+			} while (button_being_pressed(&BUTTONS_PIN, PLUS_BUTTON_BIT, &reset));
 		}
-		else if (~BUTTONS_PIN & (1 << SET_BUTTON_BIT)) {
-			_delay_ms(200);
-			while (~BUTTONS_PIN & (1 << SET_BUTTON_BIT));
+		else if (button_is_pressed(&BUTTONS_PIN, SET_BUTTON_BIT)) {
 			eeprom_update_word(&ee_task, task);
+			while (!button_is_released(&BUTTONS_PIN, SET_BUTTON_BIT));
 			return;
 		}
-		else if (~BUTTONS_PIN & (1 << RESET_BUTTON_BIT)) {
-			_delay_ms(200);
-			while (~BUTTONS_PIN & (1 << RESET_BUTTON_BIT));
+		else if (button_is_pressed(&BUTTONS_PIN, RESET_BUTTON_BIT)) {
 			task = 0x0140; // +20 oC
 			fill_display_register(task);
+			while (!button_is_released(&BUTTONS_PIN, RESET_BUTTON_BIT));
 		}
 	}
 }
@@ -264,29 +238,29 @@ void change_zone()
 
 	for (;;) {
 		uint8_t reset = 1;
-		if (~BUTTONS_PIN & (1 << MINUS_BUTTON_BIT)) {
-			while (~BUTTONS_PIN & (1 << MINUS_BUTTON_BIT) && zone > 0x0001) {
-				pressed_button_delay(&reset);
-				fill_display_register(--zone);
-			}
+		if (button_is_pressed(&BUTTONS_PIN, MINUS_BUTTON_BIT)) {
+			do {
+				if (zone > 0x0001) {
+					fill_display_register(--zone);
+				}
+			} while (button_being_pressed(&BUTTONS_PIN, MINUS_BUTTON_BIT, &reset));
 		}
-		else if (~BUTTONS_PIN & (1 << PLUS_BUTTON_BIT)) {
-			while (~BUTTONS_PIN & (1 << PLUS_BUTTON_BIT) && zone < 0x0640) {
-				pressed_button_delay(&reset);
-				fill_display_register(++zone);
-			}
+		else if (button_is_pressed(&BUTTONS_PIN, PLUS_BUTTON_BIT)) {
+			do {
+				if (zone < 0x0640) {
+					fill_display_register(++zone);
+				}
+			} while (button_being_pressed(&BUTTONS_PIN, PLUS_BUTTON_BIT, &reset));
 		}
-		else if (~BUTTONS_PIN & (1 << SET_BUTTON_BIT)) {
-			_delay_ms(200);
-			while (~BUTTONS_PIN & (1 << SET_BUTTON_BIT));
+		else if (button_is_pressed(&BUTTONS_PIN, SET_BUTTON_BIT)) {
 			eeprom_update_word(&ee_zone, zone);
+			while (!button_is_released(&BUTTONS_PIN, SET_BUTTON_BIT));
 			return;
 		}
-		else if (~BUTTONS_PIN & (1 << RESET_BUTTON_BIT)) {
-			_delay_ms(200);
-			while (~BUTTONS_PIN & (1 << RESET_BUTTON_BIT));
+		else if (button_is_pressed(&BUTTONS_PIN, RESET_BUTTON_BIT)) {
 			zone = 0x0008; // 0,5 oC
 			fill_display_register(zone);
+			while (!button_is_released(&BUTTONS_PIN, RESET_BUTTON_BIT));
 		}
 	}
 }
@@ -300,28 +274,25 @@ void control_temp()
 	LED_PORT &= ~(1 << LED_BIT); // Включение индикации
 
 	for (;;) {
-		if (~BUTTONS_PIN & (1 << MINUS_BUTTON_BIT)) {
-			_delay_ms(200);
-			while (~BUTTONS_PIN & (1 << MINUS_BUTTON_BIT));
+		if (button_is_pressed(&BUTTONS_PIN, MINUS_BUTTON_BIT)) {
 			if (brightness > 1) {
 				brightness--;
 				eeprom_update_byte(&ee_brightness, brightness);
 			}
+			while (!button_is_released(&BUTTONS_PIN, MINUS_BUTTON_BIT));
 		}
-		else if (~BUTTONS_PIN & (1 << PLUS_BUTTON_BIT)) {
-			_delay_ms(200);
-			while (~BUTTONS_PIN & (1 << PLUS_BUTTON_BIT));
+		else if (button_is_pressed(&BUTTONS_PIN, PLUS_BUTTON_BIT)) {
 			if (brightness < 15) {
 				brightness++;
 				eeprom_update_byte(&ee_brightness, brightness);
 			}
+			while (!button_is_released(&BUTTONS_PIN, PLUS_BUTTON_BIT));
 		}
-		else if (~BUTTONS_PIN & (1 << RESET_BUTTON_BIT)) {
-			_delay_ms(200);
-			while (~BUTTONS_PIN & (1 << RESET_BUTTON_BIT));
+		else if (button_is_pressed(&BUTTONS_PIN, RESET_BUTTON_BIT)) {
 			LED_DDR &= ~(1 << LED_BIT);
 			LED_PORT &= ~(1 << LED_BIT);
 			RELAY_PORT &= ~(1 << RELAY_BIT); // Выключение индикации и управления
+			while (!button_is_released(&BUTTONS_PIN, RESET_BUTTON_BIT));
 			return;
 		}
 	}
