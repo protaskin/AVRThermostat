@@ -289,6 +289,7 @@ void control_temp()
 			while (!button_is_released(&BUTTONS_PIN, PLUS_BUTTON_BIT));
 		}
 		else if (button_is_pressed(&BUTTONS_PIN, RESET_BUTTON_BIT)) {
+			action = SHOW_TEMP_ACTION;
 			LED_DDR &= ~(1 << LED_BIT);
 			LED_PORT &= ~(1 << LED_BIT);
 			RELAY_PORT &= ~(1 << RELAY_BIT); // Выключение индикации и управления
