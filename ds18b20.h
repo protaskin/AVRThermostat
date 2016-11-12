@@ -10,10 +10,14 @@
 #ifndef DS18B20_H
 #define DS18B20_H
 
+// Configuration
+
 #define DS18B20_DDR  DDRB
 #define DS18B20_PORT PORTB
 #define DS18B20_PIN  PINB
 #define DS18B20_BIT  PB0
+
+// End of configuration
 
 #define DS18B20_ERROR 0xA800
 

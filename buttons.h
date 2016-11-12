@@ -21,6 +21,7 @@ uint8_t button_is_pressed(const volatile uint8_t *pin, const uint8_t mask);
 
 /**
  * Usage:
+ *
  *		if (button_is_pressed(&PORTA, PA1)) {
  *			// Do something
  *			while (!button_is_released(&PORTA, PA1));

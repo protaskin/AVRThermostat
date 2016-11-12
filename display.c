@@ -69,7 +69,7 @@ void display_next(void)
 void display_drop_register(void)
 {
 	display_register_index = 0;
-	
+
 	for (size_t i = 0; i < DISPLAY_DIGITS_COUNT; i++) {
 		display_register[i] = DISPLAY_CHAR_BLANK;
 	}
