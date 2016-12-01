@@ -30,6 +30,10 @@
 #define RELAY_PIN  PINC
 #define RELAY_BIT  PC1
 
+#define DEFAULT_TASK 0x0140 // 20
+#define DEFAULT_ZONE 0x0008 // 0.5
+#define DEFAULT_BRIGHTNESS 7 // 1/2
+
 // End of configuration
 
 #define IDLE_ACTION         0
@@ -42,6 +46,14 @@
 #define DISPLAY_CHAR_L (DISPLAY_D | DISPLAY_E | DISPLAY_F)
 #define DISPLAY_CHAR_O (DISPLAY_A | DISPLAY_B | DISPLAY_C | DISPLAY_D | DISPLAY_E | DISPLAY_F)
 #define DISPLAY_CHAR_R (DISPLAY_E | DISPLAY_G)
+
+#define ZERO_TEMP 0
+#define MIN_TEMP 0xFC90 // -55
+#define MAX_TEMP 0x07D0 // 125
+#define MIN_ZONE 0x0001 // 1/16
+#define MAX_ZONE 0x0640 // 100
+#define MIN_BRIGHTNESS 1
+#define MAX_BRIGHTNESS 15
 
 #include <stddef.h>
 #include <stdint.h>
@@ -59,9 +71,9 @@ uint8_t brightness;
 uint16_t temp;
 uint16_t task;
 uint16_t zone;
-uint8_t EEMEM ee_brightness = 7; // 1/2
-uint16_t EEMEM ee_task = 0x0140; // 20 oC
-uint16_t EEMEM ee_zone = 0x0008; // 0,5 oC
+uint8_t EEMEM ee_brightness = DEFAULT_BRIGHTNESS;
+uint16_t EEMEM ee_task = DEFAULT_TASK;
+uint16_t EEMEM ee_zone = DEFAULT_ZONE;
 
 const uint8_t *numbers = display_numbers_map;
 
@@ -133,19 +145,21 @@ ISR(TIMER1_COMPA_vect)
 		trigger_on = task - zone / 2;
 		trigger_off = task + zone / 2;
 
-		if (temp >= 0xFC90) {
-			if (trigger_on <= 0x07D0 || temp <= trigger_on) {
+		// If temp >= MIN_TEMP is true, temp is negative,
+		// If temp <= MAX_TEMP is true, temp is positive.
+		if (temp >= MIN_TEMP) {
+			if (trigger_on <= MAX_TEMP || temp <= trigger_on) {
 				LED_PORT |= (1 << LED_BIT);
 				RELAY_PORT |= (1 << RELAY_BIT);
-			} else if (trigger_off >= 0xFC90 && temp >= trigger_off) {
+			} else if (trigger_off >= MIN_TEMP && temp >= trigger_off) {
 				LED_PORT &= ~(1 << LED_BIT);
 				RELAY_PORT &= ~(1 << RELAY_BIT);
 			}
 		} else {
-			if (trigger_on <= 0x07D0 && temp <= trigger_on) {
+			if (trigger_on <= MAX_TEMP && temp <= trigger_on) {
 				LED_PORT |= (1 << LED_BIT);
 				RELAY_PORT |= (1 << RELAY_BIT);
-			} else if (trigger_off >= 0xFC90 || temp >= trigger_off) {
+			} else if (trigger_off >= MIN_TEMP || temp >= trigger_off) {
 				LED_PORT &= ~(1 << LED_BIT);
 				RELAY_PORT &= ~(1 << RELAY_BIT);
 			}
@@ -179,12 +193,12 @@ void show_temp()
 
 	for (;;) {
 		if (button_is_pressed(&BUTTONS_PIN, MINUS_BUTTON_BIT)) {
-			if (brightness > 1) {
+			if (brightness > MIN_BRIGHTNESS) {
 				eeprom_update_byte(&ee_brightness, --brightness);
 			}
 			while (!button_is_released(&BUTTONS_PIN, MINUS_BUTTON_BIT));
 		} else if (button_is_pressed(&BUTTONS_PIN, PLUS_BUTTON_BIT)) {
-			if (brightness < 15) {
+			if (brightness < MAX_BRIGHTNESS) {
 				eeprom_update_byte(&ee_brightness, ++brightness);
 			}
 			while (!button_is_released(&BUTTONS_PIN, PLUS_BUTTON_BIT));
@@ -206,13 +220,13 @@ void change_task()
 		reset = 1;
 		if (button_is_pressed(&BUTTONS_PIN, MINUS_BUTTON_BIT)) {
 			do {
-				if (task <= 0x07D0 || task > 0xFC90) {
+				if (task <= MAX_TEMP || task > MIN_TEMP) {
 					fill_display_register(--task);
 				}
 			} while (button_being_pressed(&BUTTONS_PIN, MINUS_BUTTON_BIT, &reset));
 		} else if (button_is_pressed(&BUTTONS_PIN, PLUS_BUTTON_BIT)) {
 			do {
-				if (task < 0x07D0 || task >= 0xFC90) {
+				if (task < MAX_TEMP || task >= MIN_TEMP) {
 					fill_display_register(++task);
 				}
 			} while (button_being_pressed(&BUTTONS_PIN, PLUS_BUTTON_BIT, &reset));
@@ -221,7 +235,7 @@ void change_task()
 			while (!button_is_released(&BUTTONS_PIN, SET_BUTTON_BIT));
 			return;
 		} else if (button_is_pressed(&BUTTONS_PIN, RESET_BUTTON_BIT)) {
-			task = 0x0140; // +20 oC
+			task = DEFAULT_TASK;
 			fill_display_register(task);
 			while (!button_is_released(&BUTTONS_PIN, RESET_BUTTON_BIT));
 		}
@@ -239,13 +253,13 @@ void change_zone()
 		reset = 1;
 		if (button_is_pressed(&BUTTONS_PIN, MINUS_BUTTON_BIT)) {
 			do {
-				if (zone > 0x0001) {
+				if (zone > MIN_ZONE) {
 					fill_display_register(--zone);
 				}
 			} while (button_being_pressed(&BUTTONS_PIN, MINUS_BUTTON_BIT, &reset));
 		} else if (button_is_pressed(&BUTTONS_PIN, PLUS_BUTTON_BIT)) {
 			do {
-				if (zone < 0x0640) {
+				if (zone < MAX_ZONE) {
 					fill_display_register(++zone);
 				}
 			} while (button_being_pressed(&BUTTONS_PIN, PLUS_BUTTON_BIT, &reset));
@@ -254,7 +268,7 @@ void change_zone()
 			while (!button_is_released(&BUTTONS_PIN, SET_BUTTON_BIT));
 			return;
 		} else if (button_is_pressed(&BUTTONS_PIN, RESET_BUTTON_BIT)) {
-			zone = 0x0008; // 0,5 oC
+			zone = DEFAULT_ZONE;
 			fill_display_register(zone);
 			while (!button_is_released(&BUTTONS_PIN, RESET_BUTTON_BIT));
 		}
@@ -271,12 +285,12 @@ void control_temp()
 
 	for (;;) {
 		if (button_is_pressed(&BUTTONS_PIN, MINUS_BUTTON_BIT)) {
-			if (brightness > 1) {
+			if (brightness > MIN_BRIGHTNESS) {
 				eeprom_update_byte(&ee_brightness, --brightness);
 			}
 			while (!button_is_released(&BUTTONS_PIN, MINUS_BUTTON_BIT));
 		} else if (button_is_pressed(&BUTTONS_PIN, PLUS_BUTTON_BIT)) {
-			if (brightness < 15) {
+			if (brightness < MAX_BRIGHTNESS) {
 				eeprom_update_byte(&ee_brightness, ++brightness);
 			}
 			while (!button_is_released(&BUTTONS_PIN, PLUS_BUTTON_BIT));
@@ -332,18 +346,18 @@ int main()
 
 	// Чтение параметров из EEPROM
 	task = eeprom_read_word(&ee_task);
-	if (task > 0x07D0 && task < 0xFC90) {
-		task = 0x0140;
+	if (task > MAX_TEMP && task < MIN_TEMP) {
+		task = DEFAULT_TASK;
 	}
 
 	zone = eeprom_read_word(&ee_zone);
-	if (zone > 0x0640 || zone < 0x0001) {
-		zone = 0x0008;
+	if (zone > MAX_ZONE || zone < MIN_ZONE) {
+		zone = DEFAULT_ZONE;
 	}
 
 	brightness = eeprom_read_byte(&ee_brightness);
-	if (brightness > 15 || brightness < 1) {
-		brightness = 7;
+	if (brightness > MAX_BRIGHTNESS || brightness < MIN_BRIGHTNESS) {
+		brightness = DEFAULT_BRIGHTNESS;
 	}
 
 	for (;;) {
