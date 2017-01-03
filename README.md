@@ -42,7 +42,7 @@ For more information on SemVer, please visit http://semver.org/
 
 ## License
 
-Copyright 2014-2016 Artyom Protaskin
+Copyright 2014-2017 Artyom Protaskin
 
 Licensed under the MIT License:
 
