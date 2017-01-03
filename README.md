@@ -56,4 +56,4 @@ Copyright 2014-2017 Artyom Protaskin
 
 Licensed under the MIT License:
 
-http://www.opensource.org/licenses/mit-license.php
+http://opensource.org/licenses/MIT
