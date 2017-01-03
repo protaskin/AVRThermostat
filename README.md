@@ -30,7 +30,17 @@ an error.
 
 ## Schematics
 
-![Schematics r2.1](http://artyom.protaskin.ru/storage/avrthermostat/pictures/avrthermostat-schematics-r21.png)
+![Schematics r2.3](http://artyom.protaskin.ru/storage/avrthermostat/pictures/avrthermostat-schematics-r23.png)
+
+## PCB Layout
+
+This is the redux of my very first PCB layout, I presume it can be done better
+by placing the microcontroller under the led display, using another ports and so
+on.
+
+![PCB Layout r2.3](http://artyom.protaskin.ru/storage/avrthermostat/pictures/avrthermostat-layout-r23.png)
+
+The latest version of the PCB layout in Gerber is available [here](http://artyom.protaskin.ru/storage/avrthermostat/Thermostat_(Layout_Redux)_-_CADCAM.ZIP).
 
 ## Versioning
 
