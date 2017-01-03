@@ -31,7 +31,7 @@ AVRThermostat -- это программируемый термостат, ра�
 
 ## Электрическая схема
 
-![Электрическая схема](http://artyom.protaskin.ru/storage/avrthermostat/pictures/avrthermostat-circuit-r21.png)
+![Электрическая схема](http://artyom.protaskin.ru/storage/avrthermostat/pictures/avrthermostat-schematics-r21.png)
 
 ## Нумерация
 

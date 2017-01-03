@@ -28,9 +28,9 @@ mode, then both leds do not light.
 If the device cannot establish connection with the sensor, the display shows
 an error.
 
-## Electrical circuit
+## Schematics
 
-![Electrical circuit r2.1](http://artyom.protaskin.ru/storage/avrthermostat/pictures/avrthermostat-circuit-r21.png)
+![Schematics r2.1](http://artyom.protaskin.ru/storage/avrthermostat/pictures/avrthermostat-schematics-r21.png)
 
 ## Versioning
 
