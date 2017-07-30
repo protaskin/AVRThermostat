@@ -28,19 +28,16 @@ mode, then both leds do not light.
 If the device cannot establish connection with the sensor, the display shows
 an error.
 
-## Schematics
+## Schematics and PCB layout r3.0
 
-![Schematics r2.3](http://artyom.protaskin.ru/storage/avrthermostat/pictures/avrthermostat-schematics-r23.png)
+A KiCad project, which includes a schematics and PCB layout, is located in the
+[`Design`](Design/) directory. **Please be aware that the project is made from
+scratch and I have not yet used the new PCB layout myself, therefore it may have
+errors.**
 
-## PCB Layout
+![Schematics r3.0](http://artyom.protaskin.ru/storage/avrthermostat/pictures/avrthermostat-schematics-r30.png?2)
 
-This is the redux of my very first PCB layout, I presume it can be done better
-by placing the microcontroller under the led display, using another ports and so
-on.
-
-![PCB Layout r2.3](http://artyom.protaskin.ru/storage/avrthermostat/pictures/avrthermostat-layout-r23.png)
-
-The latest version of the PCB layout in Gerber is available [here](http://artyom.protaskin.ru/storage/avrthermostat/Thermostat_(Layout_Redux)_-_CADCAM.ZIP).
+![PCB 3D Model r3.0](http://artyom.protaskin.ru/storage/avrthermostat/pictures/avrthermostat-3dmodel-r30.png?2)
 
 ## Versioning
 

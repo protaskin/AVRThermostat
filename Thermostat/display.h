@@ -19,8 +19,8 @@
 #define DISPLAY_DIGITS_PORT PORTC
 
 #define DISPLAY_1 (1 << PC3)
-#define DISPLAY_2 (1 << PC4)
-#define DISPLAY_3 (1 << PC5)
+#define DISPLAY_2 (1 << PC5)
+#define DISPLAY_3 (1 << PC4)
 #define DISPLAY_4 (1 << PC2)
 
 // Segments
