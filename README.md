@@ -7,7 +7,8 @@ on
 
 * digital thermometer DS18B20 by Maxim Integrated,
 
-* four-digit seven-segment led display with common cathode (like FYQ-5641A),
+* four-digit seven-segment led display with common cathode (like CC56-12 or
+FYQ-5641A),
 
 and uses a relay to control a heater or fan. The device can be used as a simple
 thermometer as well. The sensor measures temperatures from -55°C to +125°C
@@ -28,14 +29,18 @@ mode, then both leds do not light.
 If the device cannot establish connection with the sensor, the display shows
 an error.
 
-## Schematics and PCB layout r3.0
+## Schematics and PCB Layout r3.0
 
-A KiCad project, which includes a schematics and PCB layout, is located in the
-[`Design`](Design/) directory. **Please be aware that the project is made from
+A KiCad project, which includes a schematics and PCB layout, is located in
+[the Design directory](Design/). **Please be aware that the project is made from
 scratch and I have not yet used the new PCB layout myself, therefore it may have
 errors.**
 
+### Schematics
+
 ![Schematics r3.0](http://artyom.protaskin.ru/storage/avrthermostat/pictures/avrthermostat-schematics-r30.png?2)
+
+### PCB 3D Model
 
 ![PCB 3D Model r3.0](http://artyom.protaskin.ru/storage/avrthermostat/pictures/avrthermostat-3dmodel-r30.png?2)
 
