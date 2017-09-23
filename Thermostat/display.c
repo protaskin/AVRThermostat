@@ -7,7 +7,6 @@
  * file that was distributed with this source code.
  */
 
-#include <stddef.h>
 #include <stdint.h>
 #include <avr/io.h>
 
@@ -70,7 +69,7 @@ void display_drop_register(void)
 {
 	display_register_index = 0;
 
-	for (size_t i = 0; i < DISPLAY_DIGITS_COUNT; i++) {
+	for (uint8_t i = 0; i < DISPLAY_DIGITS_COUNT; i++) {
 		display_register[i] = DISPLAY_CHAR_BLANK;
 	}
 }

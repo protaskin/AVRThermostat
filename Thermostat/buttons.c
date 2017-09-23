@@ -7,7 +7,6 @@
  * file that was distributed with this source code.
  */
 
-#include <stddef.h>
 #include <stdint.h>
 #include <util/delay.h>
 #include <avr/io.h>
@@ -23,7 +22,7 @@ uint8_t button_is_pressed(const volatile uint8_t * const pin, const uint8_t bit)
 	}
 
 	count = 0;
-	for (size_t i = 0; i < 10 || count; i++) {
+	for (uint8_t i = 0; i < 10 || count; i++) {
 		_delay_ms(5);
 
 		if (*pin & _BV(bit)) {
@@ -69,7 +68,7 @@ uint8_t button_being_pressed(const volatile uint8_t * const pin, const uint8_t b
 
 	released = 0;
 	delay = calc_pressed_button_delay(*reset);
-	for (size_t i = 0; i < delay && !released; i++) {
+	for (uint8_t i = 0; i < delay && !released; i++) {
 		released = (*pin & _BV(bit));
 		_delay_ms(1);
 	}

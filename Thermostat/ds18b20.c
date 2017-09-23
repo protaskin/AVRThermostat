@@ -7,7 +7,6 @@
  * file that was distributed with this source code.
  */
 
-#include <stddef.h>
 #include <stdint.h>
 #include <util/delay.h>
 #include <avr/interrupt.h>
@@ -51,7 +50,7 @@ uint8_t ds18b20_read_byte(void) // 685 мкс
 {
 	uint8_t rval = 0;
 
-	for (size_t i = 0; i < 8; i++) { // 578,25 мкс
+	for (uint8_t i = 0; i < 8; i++) { // 578,25 мкс
 		// Инициализация слота времени
 		// Каждый слот времени длится минимум 60 мкс
 		cli();
@@ -72,7 +71,7 @@ uint8_t ds18b20_read_byte(void) // 685 мкс
  */
 void ds18b20_write_byte(const uint8_t data) // 728,63 мкс
 {
-	for (size_t i = 0; i < 8; i++) {
+	for (uint8_t i = 0; i < 8; i++) {
 		// Инициализация слота времени
 		cli();
 		DS18B20_DDR |= _BV(DS18B20_BIT);

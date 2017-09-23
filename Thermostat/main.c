@@ -55,7 +55,6 @@
 #define MIN_BRIGHTNESS 1
 #define MAX_BRIGHTNESS 15
 
-#include <stddef.h>
 #include <stdint.h>
 #include <util/delay.h>
 #include <avr/eeprom.h>
