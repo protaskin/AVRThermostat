@@ -14,7 +14,7 @@
 
 #include "buttons.h"
 
-uint8_t button_is_pressed(const volatile uint8_t *pin, const uint8_t mask)
+uint8_t button_is_pressed(const volatile uint8_t * const pin, const uint8_t mask)
 {
 	uint8_t count;
 
@@ -36,12 +36,12 @@ uint8_t button_is_pressed(const volatile uint8_t *pin, const uint8_t mask)
 	return 0;
 }
 
-uint8_t button_is_released(const volatile uint8_t *pin, const uint8_t mask)
+uint8_t button_is_released(const volatile uint8_t * const pin, const uint8_t mask)
 {
 	return (*pin & (1 << mask));
 }
 
-static uint8_t calc_pressed_button_delay(uint8_t reset)
+static uint8_t calc_pressed_button_delay(const uint8_t reset)
 {
 	static uint8_t count;
 	static uint8_t compare;
@@ -62,7 +62,7 @@ static uint8_t calc_pressed_button_delay(uint8_t reset)
 	return delay;
 }
 
-uint8_t button_being_pressed(const volatile uint8_t *pin, const uint8_t mask, uint8_t *reset)
+uint8_t button_being_pressed(const volatile uint8_t * const pin, const uint8_t mask, uint8_t * const reset)
 {
 	uint8_t delay;
 	uint8_t released;

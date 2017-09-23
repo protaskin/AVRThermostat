@@ -75,7 +75,7 @@ uint8_t EEMEM ee_brightness = DEFAULT_BRIGHTNESS;
 uint16_t EEMEM ee_task = DEFAULT_TASK;
 uint16_t EEMEM ee_zone = DEFAULT_ZONE;
 
-const uint8_t *numbers = display_numbers_map;
+const uint8_t * const numbers = display_numbers_map;
 
 /**
  * Разбивает значение, считанное из температурного регистра на рязряды и

@@ -23,7 +23,7 @@
 
 uint8_t ds18b20_init(void);
 uint8_t ds18b20_read_byte(void);
-void ds18b20_write_byte(const uint8_t data);
+void ds18b20_write_byte(uint8_t data);
 uint16_t ds18b20_read_temp(void);
 
 #endif /* DS18B20_H */
