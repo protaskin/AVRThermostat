@@ -18,10 +18,10 @@
 #define DISPLAY_DIGITS_PIN  PINC
 #define DISPLAY_DIGITS_PORT PORTC
 
-#define DISPLAY_1 (1 << PC3)
-#define DISPLAY_2 (1 << PC5)
-#define DISPLAY_3 (1 << PC4)
-#define DISPLAY_4 (1 << PC2)
+#define DISPLAY_1 _BV(PC3)
+#define DISPLAY_2 _BV(PC5)
+#define DISPLAY_3 _BV(PC4)
+#define DISPLAY_4 _BV(PC2)
 
 // Segments
 
@@ -29,14 +29,14 @@
 #define DISPLAY_SEGMENTS_PIN  PIND
 #define DISPLAY_SEGMENTS_PORT PORTD
 
-#define DISPLAY_A  (1 << PD2)
-#define DISPLAY_B  (1 << PD0)
-#define DISPLAY_C  (1 << PD4)
-#define DISPLAY_D  (1 << PD6)
-#define DISPLAY_E  (1 << PD7)
-#define DISPLAY_F  (1 << PD1)
-#define DISPLAY_G  (1 << PD3)
-#define DISPLAY_DP (1 << PD5)
+#define DISPLAY_A  _BV(PD2)
+#define DISPLAY_B  _BV(PD0)
+#define DISPLAY_C  _BV(PD4)
+#define DISPLAY_D  _BV(PD6)
+#define DISPLAY_E  _BV(PD7)
+#define DISPLAY_F  _BV(PD1)
+#define DISPLAY_G  _BV(PD3)
+#define DISPLAY_DP _BV(PD5)
 
 // End of configuration
 

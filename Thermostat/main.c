@@ -17,8 +17,8 @@
 #define SET_BUTTON_BIT   PB3
 #define RESET_BUTTON_BIT PB4
 
-#define BUTTONS_MASK ((1 << MINUS_BUTTON_BIT) | (1 << PLUS_BUTTON_BIT) | \
-                      (1 << SET_BUTTON_BIT) | (1 << RESET_BUTTON_BIT))
+#define BUTTONS_MASK (_BV(MINUS_BUTTON_BIT) | _BV(PLUS_BUTTON_BIT) | \
+                      _BV(SET_BUTTON_BIT) | _BV(RESET_BUTTON_BIT))
 
 #define LED_DDR  DDRC
 #define LED_PORT PORTC
@@ -149,19 +149,19 @@ ISR(TIMER1_COMPA_vect)
 		// If temp <= MAX_TEMP is true, temp is positive.
 		if (temp >= MIN_TEMP) {
 			if (trigger_on <= MAX_TEMP || temp <= trigger_on) {
-				LED_PORT |= (1 << LED_BIT);
-				RELAY_PORT |= (1 << RELAY_BIT);
+				LED_PORT |= _BV(LED_BIT);
+				RELAY_PORT |= _BV(RELAY_BIT);
 			} else if (trigger_off >= MIN_TEMP && temp >= trigger_off) {
-				LED_PORT &= ~(1 << LED_BIT);
-				RELAY_PORT &= ~(1 << RELAY_BIT);
+				LED_PORT &= ~_BV(LED_BIT);
+				RELAY_PORT &= ~_BV(RELAY_BIT);
 			}
 		} else {
 			if (trigger_on <= MAX_TEMP && temp <= trigger_on) {
-				LED_PORT |= (1 << LED_BIT);
-				RELAY_PORT |= (1 << RELAY_BIT);
+				LED_PORT |= _BV(LED_BIT);
+				RELAY_PORT |= _BV(RELAY_BIT);
 			} else if (trigger_off >= MIN_TEMP || temp >= trigger_off) {
-				LED_PORT &= ~(1 << LED_BIT);
-				RELAY_PORT &= ~(1 << RELAY_BIT);
+				LED_PORT &= ~_BV(LED_BIT);
+				RELAY_PORT &= ~_BV(RELAY_BIT);
 			}
 		}
 	}
@@ -280,8 +280,8 @@ void control_temp()
 	action = SHOW_TEMP_ACTION | CONTROL_TEMP_ACTION;
 	fill_display_register(temp);
 
-	LED_DDR |= (1 << LED_BIT);
-	LED_PORT &= ~(1 << LED_BIT); // Включение индикации
+	LED_DDR |= _BV(LED_BIT);
+	LED_PORT &= ~_BV(LED_BIT); // Включение индикации
 
 	for (;;) {
 		if (button_is_pressed(&BUTTONS_PIN, MINUS_BUTTON_BIT)) {
@@ -296,9 +296,9 @@ void control_temp()
 			while (!button_is_released(&BUTTONS_PIN, PLUS_BUTTON_BIT));
 		} else if (button_is_pressed(&BUTTONS_PIN, RESET_BUTTON_BIT)) {
 			action = SHOW_TEMP_ACTION;
-			LED_DDR &= ~(1 << LED_BIT);
-			LED_PORT &= ~(1 << LED_BIT);
-			RELAY_PORT &= ~(1 << RELAY_BIT); // Выключение индикации и управления
+			LED_DDR &= ~_BV(LED_BIT);
+			LED_PORT &= ~_BV(LED_BIT);
+			RELAY_PORT &= ~_BV(RELAY_BIT); // Выключение индикации и управления
 			while (!button_is_released(&BUTTONS_PIN, RESET_BUTTON_BIT));
 			return;
 		}
@@ -311,22 +311,22 @@ int main()
 	BUTTONS_PORT |= BUTTONS_MASK;
 
 	// Конфигурация портов в/в
-	RELAY_DDR = (1 << RELAY_BIT);
+	RELAY_DDR = _BV(RELAY_BIT);
 
 	// Конфигурация 16-битного счетчика
 	OCR1AH = 0x3D;
 	OCR1AL = 0x08; // Счет до 15625
 	// WGM12 = 1 для сброса при совпадении (режим CTC)
 	// CS12 = 1 и CS10 = 1 для предварительного деления на 1024
-	TCCR1B = (1 << WGM12) | (1 << CS12) | (1 << CS10);
-	TIMSK |= (1 << OCIE1A); // Включение прерывания по совпадению
+	TCCR1B = _BV(WGM12) | _BV(CS12) | _BV(CS10);
+	TIMSK |= _BV(OCIE1A); // Включение прерывания по совпадению
 
 	// Конфигурация 8-битного счетчика
 	OCR2 = 0x18; // Счет до 25
 	// WGM21 = 1 для сброса при совпадении (режим CTC)
 	// CS21 = 1 и CS20 = 1 для предварительного деления на 32
-	TCCR2 = (1 << WGM21) | (1 << CS21) | (1 << CS20);
-	TIMSK |= (1 << OCIE2); // Включение прерывания по совпадению
+	TCCR2 = _BV(WGM21) | _BV(CS21) | _BV(CS20);
+	TIMSK |= _BV(OCIE2); // Включение прерывания по совпадению
 
 	// Инициализация дисплея
 	display_init();

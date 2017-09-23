@@ -26,16 +26,16 @@ uint8_t ds18b20_init(void) // 1162 мкс
 	// Обнуление линии
 	// Заключается в подтягивании линии к нижнему уровню в течение минимум 480 мкс
 	cli();
-	DS18B20_PORT &= ~(1 << DS18B20_BIT);
-	DS18B20_DDR |= (1 << DS18B20_BIT);
+	DS18B20_PORT &= ~_BV(DS18B20_BIT);
+	DS18B20_DDR |= _BV(DS18B20_BIT);
 	sei();
 	_delay_us(480);
 	cli();
-	DS18B20_DDR &= ~(1 << DS18B20_BIT);
+	DS18B20_DDR &= ~_BV(DS18B20_BIT);
 
 	// Прием импульса присутствия
 	_delay_us(60); // Ожидание ответа в течение 15-60 мкс
-	rval = ((DS18B20_PIN & (1 << DS18B20_BIT)) == 0);
+	rval = ((DS18B20_PIN & _BV(DS18B20_BIT)) == 0);
 
 	// Ожидание готовности датчика
 	sei();
@@ -55,11 +55,11 @@ uint8_t ds18b20_read_byte(void) // 685 мкс
 		// Инициализация слота времени
 		// Каждый слот времени длится минимум 60 мкс
 		cli();
-		DS18B20_DDR |= (1 << DS18B20_BIT);
+		DS18B20_DDR |= _BV(DS18B20_BIT);
 		_delay_us(1); // Низкий уровень в течение 1-15 мкс
-		DS18B20_DDR &= ~(1 << DS18B20_BIT);
+		DS18B20_DDR &= ~_BV(DS18B20_BIT);
 		_delay_us(2); // Выходные данные достоверны в течение 15 мкс после низкого уровня
-		rval |= (DS18B20_PIN & (1 << DS18B20_BIT)) << i;
+		rval |= (DS18B20_PIN & _BV(DS18B20_BIT)) << i;
 		_delay_us(60);
 		sei();
 	}
@@ -75,14 +75,14 @@ void ds18b20_write_byte(const uint8_t data) // 728,63 мкс
 	for (size_t i = 0; i < 8; i++) {
 		// Инициализация слота времени
 		cli();
-		DS18B20_DDR |= (1 << DS18B20_BIT);
+		DS18B20_DDR |= _BV(DS18B20_BIT);
 		_delay_us(1); // Низкий уровень в течение 1-15 мкс
-		if (data & (1 << i)) {
+		if (data & _BV(i)) {
 			// При передаче 1 необходимо вновь подтянуть линию к высокому уровню
-			DS18B20_DDR &= ~(1 << DS18B20_BIT);
+			DS18B20_DDR &= ~_BV(DS18B20_BIT);
 		}
 		_delay_us(60);
-		DS18B20_DDR &= ~(1 << DS18B20_BIT);
+		DS18B20_DDR &= ~_BV(DS18B20_BIT);
 		sei();
 	}
 }
