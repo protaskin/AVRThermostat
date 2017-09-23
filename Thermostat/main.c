@@ -52,7 +52,8 @@ const uint8_t * const numbers = display_numbers_map;
  */
 void fill_display_register(uint16_t temp)
 {
-	uint8_t sign, integer, fractal;
+	bool sign;
+	uint8_t int_part, frac_numer;
 
 	if (temp == DS18B20_ERROR) {
 		display_register[3] = DISPLAY_CHAR_BLANK;
@@ -70,31 +71,31 @@ void fill_display_register(uint16_t temp)
 	}
 
 	// Выделение целой части
-	integer = (temp & 0x07F0) >> 4;
+	int_part = (temp & 0x07F0) >> 4;
 
 	// Выделение дробной части
-	fractal = (temp & 0x0F) * 625 / 100;
-	fractal = fractal / 10 + (fractal % 10 >= 5);
+	frac_numer = (temp & 0x0F) * 625 / 100;
+	frac_numer = frac_numer / 10 + (frac_numer % 10 >= 5);
 
 	// Заполнение регистра дисплея
-	if (integer >= 100) {
+	if (int_part >= 100) {
 		display_register[3] = numbers[1];
-	} else if (sign && integer >= 10) {
+	} else if (sign && int_part >= 10) {
 		display_register[3] = DISPLAY_CHAR_MINUS;
 	} else {
 		display_register[3] = DISPLAY_CHAR_BLANK;
 	}
 
-	if (integer >= 10) {
-		display_register[2] = numbers[integer % 100 / 10];
+	if (int_part >= 10) {
+		display_register[2] = numbers[int_part % 100 / 10];
 	} else if (sign) {
 		display_register[2] = DISPLAY_CHAR_MINUS;
 	} else {
 		display_register[2] = DISPLAY_CHAR_BLANK;
 	}
 
-	display_register[1] = numbers[integer % 10] | DISPLAY_CHAR_POINT;
-	display_register[0] = numbers[fractal];
+	display_register[1] = numbers[int_part % 10] | DISPLAY_CHAR_POINT;
+	display_register[0] = numbers[frac_numer];
 }
 
 /**
