@@ -13,14 +13,7 @@
 #include <stdbool.h>
 #include <stdint.h>
 
-// Configuration
-
-#define DS18B20_DDR  DDRB
-#define DS18B20_PORT PORTB
-#define DS18B20_PIN  PINB
-#define DS18B20_BIT  PB0
-
-// End of configuration
+#include "iodef.h"
 
 #define DS18B20_ERROR 0xA800
 

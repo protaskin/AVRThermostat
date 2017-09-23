@@ -13,26 +13,26 @@
 #include "display.h"
 
 const uint8_t display_digits_map[] = {
-	DISPLAY_4,
-	DISPLAY_3,
-	DISPLAY_2,
-	DISPLAY_1
+	DISPLAY_4_MASK,
+	DISPLAY_3_MASK,
+	DISPLAY_2_MASK,
+	DISPLAY_1_MASK
 };
 
 const uint8_t display_numbers_map[] = {
-	DISPLAY_A | DISPLAY_B | DISPLAY_C | DISPLAY_D | DISPLAY_E | DISPLAY_F, // 0
-	DISPLAY_B | DISPLAY_C, // 1
-	DISPLAY_A | DISPLAY_B | DISPLAY_D | DISPLAY_E | DISPLAY_G, // 2
-	DISPLAY_A | DISPLAY_B | DISPLAY_C | DISPLAY_D | DISPLAY_G, // 3
-	DISPLAY_B | DISPLAY_C | DISPLAY_F | DISPLAY_G, // 4
-	DISPLAY_A | DISPLAY_C | DISPLAY_D | DISPLAY_F | DISPLAY_G, // 5
-	DISPLAY_A | DISPLAY_C | DISPLAY_D | DISPLAY_E | DISPLAY_F | DISPLAY_G, // 6
-	DISPLAY_A | DISPLAY_B | DISPLAY_C, // 7
-	DISPLAY_A | DISPLAY_B | DISPLAY_C | DISPLAY_D | DISPLAY_E | DISPLAY_F | DISPLAY_G, // 8
-	DISPLAY_A | DISPLAY_B | DISPLAY_C | DISPLAY_D | DISPLAY_F | DISPLAY_G // 9
+	DISPLAY_CHAR_0,
+	DISPLAY_CHAR_1,
+	DISPLAY_CHAR_2,
+	DISPLAY_CHAR_3,
+	DISPLAY_CHAR_4,
+	DISPLAY_CHAR_5,
+	DISPLAY_CHAR_6,
+	DISPLAY_CHAR_7,
+	DISPLAY_CHAR_8,
+	DISPLAY_CHAR_9
 };
 
-uint8_t display_register[DISPLAY_DIGITS_COUNT];
+uint8_t display_register[DISPLAY_REGISTER_SIZE];
 uint8_t display_register_index;
 
 void display_init(void)
@@ -60,7 +60,7 @@ void display_next(void)
 {
 	display_register_index++;
 
-	if (display_register_index == DISPLAY_DIGITS_COUNT) {
+	if (display_register_index == DISPLAY_REGISTER_SIZE) {
 		display_register_index = 0;
 	}
 }
@@ -69,7 +69,7 @@ void display_drop_register(void)
 {
 	display_register_index = 0;
 
-	for (uint8_t i = 0; i < DISPLAY_DIGITS_COUNT; i++) {
+	for (uint8_t i = 0; i < DISPLAY_REGISTER_SIZE; i++) {
 		display_register[i] = DISPLAY_CHAR_BLANK;
 	}
 }

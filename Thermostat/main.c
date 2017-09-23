@@ -7,45 +7,9 @@
  * file that was distributed with this source code.
  */
 
-// Configuration
-
-#define BUTTONS_DDR      DDRB
-#define BUTTONS_PORT     PORTB
-#define BUTTONS_PIN      PINB
-#define MINUS_BUTTON_BIT PB1
-#define PLUS_BUTTON_BIT  PB2
-#define SET_BUTTON_BIT   PB3
-#define RESET_BUTTON_BIT PB4
-
-#define BUTTONS_MASK (_BV(MINUS_BUTTON_BIT) | _BV(PLUS_BUTTON_BIT) | \
-                      _BV(SET_BUTTON_BIT) | _BV(RESET_BUTTON_BIT))
-
-#define LED_DDR  DDRC
-#define LED_PORT PORTC
-#define LED_PIN  PINC
-#define LED_BIT  PC0
-
-#define RELAY_DDR  DDRC
-#define RELAY_PORT PORTC
-#define RELAY_PIN  PINC
-#define RELAY_BIT  PC1
-
-#define DEFAULT_TASK 0x0140 // 20
-#define DEFAULT_ZONE 0x0008 // 0.5
-#define DEFAULT_BRIGHTNESS 7 // 1/2
-
-// End of configuration
-
 #define IDLE_ACTION         0
 #define SHOW_TEMP_ACTION    1
 #define CONTROL_TEMP_ACTION 2
-
-#define DISPLAY_CHAR_A (DISPLAY_A | DISPLAY_B | DISPLAY_C | DISPLAY_E | DISPLAY_F | DISPLAY_G)
-#define DISPLAY_CHAR_D (DISPLAY_B | DISPLAY_C | DISPLAY_D | DISPLAY_E | DISPLAY_G)
-#define DISPLAY_CHAR_E (DISPLAY_A | DISPLAY_D | DISPLAY_E | DISPLAY_F | DISPLAY_G)
-#define DISPLAY_CHAR_L (DISPLAY_D | DISPLAY_E | DISPLAY_F)
-#define DISPLAY_CHAR_O (DISPLAY_A | DISPLAY_B | DISPLAY_C | DISPLAY_D | DISPLAY_E | DISPLAY_F)
-#define DISPLAY_CHAR_R (DISPLAY_E | DISPLAY_G)
 
 #define ZERO_TEMP 0
 #define MIN_TEMP 0xFC90 // -55
@@ -54,6 +18,10 @@
 #define MAX_ZONE 0x0640 // 100
 #define MIN_BRIGHTNESS 1
 #define MAX_BRIGHTNESS 15
+
+#define DEFAULT_TASK 0x0140 // 20
+#define DEFAULT_ZONE 0x0008 // 0.5
+#define DEFAULT_BRIGHTNESS 7 // 1/2
 
 #include <stdbool.h>
 #include <stdint.h>
@@ -65,6 +33,7 @@
 #include "buttons.h"
 #include "display.h"
 #include "ds18b20.h"
+#include "iodef.h"
 
 uint8_t action;
 uint8_t brightness;
@@ -308,7 +277,8 @@ void control_temp()
 int main()
 {
 	// Enable internal pull-up resistors
-	BUTTONS_PORT |= BUTTONS_MASK;
+	BUTTONS_PORT |= _BV(MINUS_BUTTON_BIT) | _BV(PLUS_BUTTON_BIT) |
+		_BV(SET_BUTTON_BIT) | _BV(RESET_BUTTON_BIT);
 
 	// Конфигурация портов в/в
 	RELAY_DDR = _BV(RELAY_BIT);
