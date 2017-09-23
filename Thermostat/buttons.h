@@ -10,6 +10,9 @@
 #ifndef BUTTONS_H
 #define BUTTONS_H
 
+#include <stdbool.h>
+#include <stdint.h>
+
 /**
  * Usage:
  *

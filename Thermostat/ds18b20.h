@@ -10,6 +10,9 @@
 #ifndef DS18B20_H
 #define DS18B20_H
 
+#include <stdbool.h>
+#include <stdint.h>
+
 // Configuration
 
 #define DS18B20_DDR  DDRB

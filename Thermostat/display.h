@@ -10,6 +10,9 @@
 #ifndef DISPLAY_H
 #define DISPLAY_H
 
+#include <stdint.h>
+#include <avr/io.h> // The _BV() macro
+
 // Configuration
 
 // Digits
