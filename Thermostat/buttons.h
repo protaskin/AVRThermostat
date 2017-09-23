@@ -17,7 +17,7 @@
  *			// Do something
  *		}
  */
-uint8_t button_is_pressed(const volatile uint8_t *pin, uint8_t mask);
+uint8_t button_is_pressed(const volatile uint8_t *pin, uint8_t bit);
 
 /**
  * Usage:
@@ -27,7 +27,7 @@ uint8_t button_is_pressed(const volatile uint8_t *pin, uint8_t mask);
  *			while (!button_is_released(&PORTA, PA1));
  *		}
  */
-uint8_t button_is_released(const volatile uint8_t *pin, uint8_t mask);
+uint8_t button_is_released(const volatile uint8_t *pin, uint8_t bit);
 
 /**
  * Usage:
@@ -43,6 +43,6 @@ uint8_t button_is_released(const volatile uint8_t *pin, uint8_t mask);
  *			}
  *		}
  */
-uint8_t button_being_pressed(const volatile uint8_t *pin, uint8_t mask, uint8_t *reset);
+uint8_t button_being_pressed(const volatile uint8_t *pin, uint8_t bit, uint8_t *reset);
 
 #endif /* BUTTONS_H */
