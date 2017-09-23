@@ -55,6 +55,7 @@
 #define MIN_BRIGHTNESS 1
 #define MAX_BRIGHTNESS 15
 
+#include <stdbool.h>
 #include <stdint.h>
 #include <util/delay.h>
 #include <avr/eeprom.h>
@@ -210,13 +211,13 @@ void show_temp()
 
 void change_task()
 {
-	uint8_t reset;
+	bool reset;
 
 	action = IDLE_ACTION;
 	fill_display_register(task);
 
 	for (;;) {
-		reset = 1;
+		reset = true;
 		if (button_is_pressed(&BUTTONS_PIN, MINUS_BUTTON_BIT)) {
 			do {
 				if (task <= MAX_TEMP || task > MIN_TEMP) {
@@ -243,13 +244,13 @@ void change_task()
 
 void change_zone()
 {
-	uint8_t reset;
+	bool reset;
 
 	action = IDLE_ACTION;
 	fill_display_register(zone);
 
 	for (;;) {
-		reset = 1;
+		reset = true;
 		if (button_is_pressed(&BUTTONS_PIN, MINUS_BUTTON_BIT)) {
 			do {
 				if (zone > MIN_ZONE) {

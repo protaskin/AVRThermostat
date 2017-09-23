@@ -21,7 +21,7 @@
 
 #define DS18B20_ERROR 0xA800
 
-uint8_t ds18b20_init(void);
+bool ds18b20_init(void);
 uint8_t ds18b20_read_byte(void);
 void ds18b20_write_byte(uint8_t data);
 uint16_t ds18b20_read_temp(void);

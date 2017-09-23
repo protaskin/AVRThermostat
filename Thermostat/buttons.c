@@ -7,18 +7,19 @@
  * file that was distributed with this source code.
  */
 
+#include <stdbool.h>
 #include <stdint.h>
 #include <util/delay.h>
 #include <avr/io.h>
 
 #include "buttons.h"
 
-uint8_t button_is_pressed(const volatile uint8_t * const pin, const uint8_t bit)
+bool button_is_pressed(const volatile uint8_t * const pin, const uint8_t bit)
 {
 	uint8_t count;
 
 	if (*pin & _BV(bit)) {
-		return 0;
+		return false;
 	}
 
 	count = 0;
@@ -28,19 +29,19 @@ uint8_t button_is_pressed(const volatile uint8_t * const pin, const uint8_t bit)
 		if (*pin & _BV(bit)) {
 			count = 0;
 		} else if (++count == 10) {
-			return 1;
+			return true;
 		}
 	}
 
-	return 0;
+	return false;
 }
 
-uint8_t button_is_released(const volatile uint8_t * const pin, const uint8_t bit)
+bool button_is_released(const volatile uint8_t * const pin, const uint8_t bit)
 {
 	return (*pin & _BV(bit));
 }
 
-static uint8_t calc_pressed_button_delay(const uint8_t reset)
+static uint8_t calc_pressed_button_delay(const bool reset)
 {
 	static uint8_t count;
 	static uint8_t compare;
@@ -61,12 +62,12 @@ static uint8_t calc_pressed_button_delay(const uint8_t reset)
 	return delay;
 }
 
-uint8_t button_being_pressed(const volatile uint8_t * const pin, const uint8_t bit, uint8_t * const reset)
+bool button_being_pressed(const volatile uint8_t * const pin, const uint8_t bit, bool * const reset)
 {
 	uint8_t delay;
-	uint8_t released;
+	bool released;
 
-	released = 0;
+	released = false;
 	delay = calc_pressed_button_delay(*reset);
 	for (uint8_t i = 0; i < delay && !released; i++) {
 		released = (*pin & _BV(bit));

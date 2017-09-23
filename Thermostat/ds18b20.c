@@ -7,6 +7,7 @@
  * file that was distributed with this source code.
  */
 
+#include <stdbool.h>
 #include <stdint.h>
 #include <util/delay.h>
 #include <avr/interrupt.h>
@@ -18,9 +19,9 @@
  * Инициализирует процесс связи с датчиком.
  * Возвращает 1 если датчик подключен и готов к работе, 0 в противном случае.
  */
-uint8_t ds18b20_init(void) // 1162 мкс
+bool ds18b20_init(void) // 1162 мкс
 {
-	uint8_t rval;
+	bool rval;
 
 	// Обнуление линии
 	// Заключается в подтягивании линии к нижнему уровню в течение минимум 480 мкс
