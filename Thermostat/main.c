@@ -50,7 +50,7 @@ const uint8_t * const numbers = display_numbers_map;
  * Разбивает значение, считанное из температурного регистра на рязряды и
  * заполняет регистр дисплея.
  */
-void fill_display_register(uint16_t temp)
+static void fill_display_register(uint16_t temp)
 {
 	bool sign;
 	uint8_t int_part, frac_numer;
@@ -157,7 +157,7 @@ ISR(TIMER2_COMP_vect)
 	i &= 0x0F; // 16 -> 0
 }
 
-void show_temp()
+static void show_temp()
 {
 	action = SHOW_TEMP_ACTION;
 
@@ -179,7 +179,7 @@ void show_temp()
 	}
 }
 
-void change_task()
+static void change_task()
 {
 	bool reset;
 
@@ -212,7 +212,7 @@ void change_task()
 	}
 }
 
-void change_zone()
+static void change_zone()
 {
 	bool reset;
 
@@ -245,7 +245,7 @@ void change_zone()
 	}
 }
 
-void control_temp()
+static void control_temp()
 {
 	action = SHOW_TEMP_ACTION | CONTROL_TEMP_ACTION;
 	fill_display_register(temp);
