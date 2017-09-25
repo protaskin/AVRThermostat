@@ -32,7 +32,7 @@ const uint8_t display_numbers_map[] = {
 	DISPLAY_CHAR_9
 };
 
-uint8_t display_register[DISPLAY_REGISTER_SIZE];
+uint8_t volatile display_register[DISPLAY_REGISTER_SIZE];
 uint8_t display_register_index;
 
 void display_init(void)

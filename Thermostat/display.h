@@ -84,6 +84,9 @@
 	DISPLAY_A_MASK | DISPLAY_B_MASK | DISPLAY_C_MASK | DISPLAY_E_MASK | \
 	DISPLAY_F_MASK | DISPLAY_G_MASK)
 
+#define DISPLAY_CHAR_C ( \
+	DISPLAY_A_MASK | DISPLAY_D_MASK | DISPLAY_E_MASK | DISPLAY_F_MASK)
+
 #define DISPLAY_CHAR_D ( \
 	DISPLAY_B_MASK | DISPLAY_C_MASK | DISPLAY_D_MASK | DISPLAY_E_MASK | \
 	DISPLAY_G_MASK)
@@ -108,7 +111,7 @@
 
 extern const uint8_t display_numbers_map[10];
 
-extern uint8_t display_register[DISPLAY_REGISTER_SIZE];
+extern volatile uint8_t display_register[DISPLAY_REGISTER_SIZE];
 extern uint8_t display_register_index;
 
 void display_init(void);

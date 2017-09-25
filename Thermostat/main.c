@@ -10,38 +10,20 @@
 #define TIMER1_SHOW_TEMP_BIT    0
 #define TIMER1_CONTROL_TEMP_BIT 1
 
-#define ZERO_TEMP 0
-#define MIN_TEMP 0xFC90 // -55
-#define MAX_TEMP 0x07D0 // 125
-#define MIN_ZONE 0x0001 // 1/16
-#define MAX_ZONE 0x0640 // 100
-#define MIN_BRIGHTNESS 1
-#define MAX_BRIGHTNESS 15
-
-#define DEFAULT_TASK 0x0140 // 20
-#define DEFAULT_ZONE 0x0008 // 0.5
-#define DEFAULT_BRIGHTNESS 7 // 1/2
-
 #include <stdbool.h>
 #include <stdint.h>
 #include <util/delay.h>
-#include <avr/eeprom.h>
 #include <avr/interrupt.h>
 #include <avr/io.h>
 
 #include "buttons.h"
 #include "display.h"
+#include "config.h"
 #include "ds18b20.h"
 #include "iodef.h"
 
 uint8_t timer1_status;
-uint8_t brightness;
-uint16_t temp = 0xDEAD;
-uint16_t task;
-uint16_t zone;
-uint8_t EEMEM ee_brightness = DEFAULT_BRIGHTNESS;
-uint16_t EEMEM ee_task = DEFAULT_TASK;
-uint16_t EEMEM ee_zone = DEFAULT_ZONE;
+volatile uint16_t temp = 0xDEAD;
 
 const uint8_t * const numbers = display_numbers_map;
 
@@ -165,12 +147,14 @@ static void show_temp()
 	for (;;) {
 		if (button_is_pressed(&BUTTONS_PIN, MINUS_BUTTON_BIT)) {
 			if (brightness > MIN_BRIGHTNESS) {
-				eeprom_update_byte(&ee_brightness, --brightness);
+				brightness--;
+				config_update();
 			}
 			while (!button_is_released(&BUTTONS_PIN, MINUS_BUTTON_BIT));
 		} else if (button_is_pressed(&BUTTONS_PIN, PLUS_BUTTON_BIT)) {
 			if (brightness < MAX_BRIGHTNESS) {
-				eeprom_update_byte(&ee_brightness, ++brightness);
+				brightness++;
+				config_update();
 			}
 			while (!button_is_released(&BUTTONS_PIN, PLUS_BUTTON_BIT));
 		} else if (button_is_pressed(&BUTTONS_PIN, SET_BUTTON_BIT)) {
@@ -203,7 +187,6 @@ static void change_task()
 				}
 			} while (button_being_pressed(&BUTTONS_PIN, PLUS_BUTTON_BIT, &reset));
 		} else if (button_is_pressed(&BUTTONS_PIN, SET_BUTTON_BIT)) {
-			eeprom_update_word(&ee_task, task);
 			while (!button_is_released(&BUTTONS_PIN, SET_BUTTON_BIT));
 			return;
 		} else if (button_is_pressed(&BUTTONS_PIN, RESET_BUTTON_BIT)) {
@@ -235,7 +218,6 @@ static void change_zone()
 				}
 			} while (button_being_pressed(&BUTTONS_PIN, PLUS_BUTTON_BIT, &reset));
 		} else if (button_is_pressed(&BUTTONS_PIN, SET_BUTTON_BIT)) {
-			eeprom_update_word(&ee_zone, zone);
 			while (!button_is_released(&BUTTONS_PIN, SET_BUTTON_BIT));
 			return;
 		} else if (button_is_pressed(&BUTTONS_PIN, RESET_BUTTON_BIT)) {
@@ -257,12 +239,14 @@ static void control_temp()
 	for (;;) {
 		if (button_is_pressed(&BUTTONS_PIN, MINUS_BUTTON_BIT)) {
 			if (brightness > MIN_BRIGHTNESS) {
-				eeprom_update_byte(&ee_brightness, --brightness);
+				brightness--;
+				config_update();
 			}
 			while (!button_is_released(&BUTTONS_PIN, MINUS_BUTTON_BIT));
 		} else if (button_is_pressed(&BUTTONS_PIN, PLUS_BUTTON_BIT)) {
 			if (brightness < MAX_BRIGHTNESS) {
-				eeprom_update_byte(&ee_brightness, ++brightness);
+				brightness++;
+				config_update();
 			}
 			while (!button_is_released(&BUTTONS_PIN, PLUS_BUTTON_BIT));
 		} else if (button_is_pressed(&BUTTONS_PIN, RESET_BUTTON_BIT)) {
@@ -279,6 +263,8 @@ static void control_temp()
 
 int main()
 {
+	uint8_t error;
+
 	// Enable internal pull-up resistors
 	BUTTONS_PORT |= _BV(MINUS_BUTTON_BIT) | _BV(PLUS_BUTTON_BIT) |
 		_BV(SET_BUTTON_BIT) | _BV(RESET_BUTTON_BIT);
@@ -304,38 +290,48 @@ int main()
 	// Инициализация дисплея
 	display_init();
 
-	// Отображение сообщения загрузки
-	display_register[3] = DISPLAY_CHAR_L;
-	display_register[2] = DISPLAY_CHAR_O;
-	display_register[1] = DISPLAY_CHAR_A;
-	display_register[0] = DISPLAY_CHAR_D;
-
 	sei();
+
+	error = config_read();
+	if (error) {
+		if (error & _BV(CONFIG_BAD_CHECKSUM_BIT)) {
+			display_register[3] = DISPLAY_CHAR_BLANK;
+			display_register[2] = DISPLAY_CHAR_C;
+			display_register[1] = DISPLAY_CHAR_R;
+			display_register[0] = DISPLAY_CHAR_C;
+		}
+
+		while (!button_is_pressed(&BUTTONS_PIN, RESET_BUTTON_BIT));
+		while (!button_is_released(&BUTTONS_PIN, RESET_BUTTON_BIT));
+	}
 
 	// Skip the power-on reset value of the temperature
 	ds18b20_read_temp();
-	while (temp == 0xDEAD);
-
-	// Чтение параметров из EEPROM
-	task = eeprom_read_word(&ee_task);
-	if (task > MAX_TEMP && task < MIN_TEMP) {
-		task = DEFAULT_TASK;
+	while (temp == 0xDEAD) {
+		display_register[3] = DISPLAY_CHAR_L;
+		display_register[2] = DISPLAY_CHAR_O;
+		display_register[1] = DISPLAY_CHAR_A;
+		display_register[0] = DISPLAY_CHAR_D;
 	}
 
-	zone = eeprom_read_word(&ee_zone);
-	if (zone > MAX_ZONE || zone < MIN_ZONE) {
-		zone = DEFAULT_ZONE;
-	}
+	while (true) {
+		switch (action) {
+			case 0:
+				config_update();
+				show_temp();
+				break;
+			case 1:
+				change_task();
+				break;
+			case 2:
+				change_zone();
+				break;
+			case 3:
+				config_update();
+				control_temp();
+				break;
+		}
 
-	brightness = eeprom_read_byte(&ee_brightness);
-	if (brightness > MAX_BRIGHTNESS || brightness < MIN_BRIGHTNESS) {
-		brightness = DEFAULT_BRIGHTNESS;
-	}
-
-	for (;;) {
-		show_temp();
-		change_task();
-		change_zone();
-		control_temp();
+		action++;
 	}
 }
