@@ -7,9 +7,8 @@
  * file that was distributed with this source code.
  */
 
-#define IDLE_ACTION         0
-#define SHOW_TEMP_ACTION    1
-#define CONTROL_TEMP_ACTION 2
+#define TIMER1_SHOW_TEMP_BIT    0
+#define TIMER1_CONTROL_TEMP_BIT 1
 
 #define ZERO_TEMP 0
 #define MIN_TEMP 0xFC90 // -55
@@ -35,7 +34,7 @@
 #include "ds18b20.h"
 #include "iodef.h"
 
-uint8_t action;
+uint8_t timer1_status;
 uint8_t brightness;
 uint16_t temp;
 uint16_t task;
@@ -107,11 +106,12 @@ ISR(TIMER1_COMPA_vect)
 	uint16_t trigger_off;
 
 	temp = ds18b20_read_temp();
-	if (action & SHOW_TEMP_ACTION) {
+
+	if (timer1_status & _BV(TIMER1_SHOW_TEMP_BIT)) {
 		fill_display_register(temp);
 	}
 
-	if (action & CONTROL_TEMP_ACTION) {
+	if (timer1_status & _BV(TIMER1_CONTROL_TEMP_BIT)) {
 		trigger_on = task - zone / 2;
 		trigger_off = task + zone / 2;
 
@@ -159,7 +159,7 @@ ISR(TIMER2_COMP_vect)
 
 static void show_temp()
 {
-	action = SHOW_TEMP_ACTION;
+	timer1_status |= _BV(TIMER1_SHOW_TEMP_BIT);
 
 	for (;;) {
 		if (button_is_pressed(&BUTTONS_PIN, MINUS_BUTTON_BIT)) {
@@ -174,16 +174,17 @@ static void show_temp()
 			while (!button_is_released(&BUTTONS_PIN, PLUS_BUTTON_BIT));
 		} else if (button_is_pressed(&BUTTONS_PIN, SET_BUTTON_BIT)) {
 			while (!button_is_released(&BUTTONS_PIN, SET_BUTTON_BIT));
-			return;
+			break;
 		}
 	}
+
+	timer1_status &= ~_BV(TIMER1_SHOW_TEMP_BIT);
 }
 
 static void change_task()
 {
 	bool reset;
 
-	action = IDLE_ACTION;
 	fill_display_register(task);
 
 	for (;;) {
@@ -216,7 +217,6 @@ static void change_zone()
 {
 	bool reset;
 
-	action = IDLE_ACTION;
 	fill_display_register(zone);
 
 	for (;;) {
@@ -247,7 +247,7 @@ static void change_zone()
 
 static void control_temp()
 {
-	action = SHOW_TEMP_ACTION | CONTROL_TEMP_ACTION;
+	timer1_status |= _BV(TIMER1_SHOW_TEMP_BIT) | _BV(TIMER1_CONTROL_TEMP_BIT);
 	fill_display_register(temp);
 
 	LED_DDR |= _BV(LED_BIT);
@@ -265,14 +265,15 @@ static void control_temp()
 			}
 			while (!button_is_released(&BUTTONS_PIN, PLUS_BUTTON_BIT));
 		} else if (button_is_pressed(&BUTTONS_PIN, RESET_BUTTON_BIT)) {
-			action = SHOW_TEMP_ACTION;
 			LED_DDR &= ~_BV(LED_BIT);
 			LED_PORT &= ~_BV(LED_BIT);
 			RELAY_PORT &= ~_BV(RELAY_BIT); // Выключение индикации и управления
 			while (!button_is_released(&BUTTONS_PIN, RESET_BUTTON_BIT));
-			return;
+			break;
 		}
 	}
+
+	timer1_status &= ~(_BV(TIMER1_SHOW_TEMP_BIT) | _BV(TIMER1_CONTROL_TEMP_BIT));
 }
 
 int main()
