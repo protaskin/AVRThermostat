@@ -22,10 +22,10 @@
 #include "ds18b20.h"
 #include "iodef.h"
 
-uint8_t timer1_status;
-volatile uint16_t temp = 0xDEAD;
+static uint8_t timer1_status;
+static volatile uint16_t temp = 0xDEAD;
 
-const uint8_t * const numbers = display_numbers_map;
+static const uint8_t * const numbers = display_numbers_map;
 
 /**
  * Разбивает значение, считанное из температурного регистра на рязряды и
