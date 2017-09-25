@@ -36,7 +36,7 @@
 
 uint8_t timer1_status;
 uint8_t brightness;
-uint16_t temp;
+uint16_t temp = 0xDEAD;
 uint16_t task;
 uint16_t zone;
 uint8_t EEMEM ee_brightness = DEFAULT_BRIGHTNESS;
@@ -160,6 +160,7 @@ ISR(TIMER2_COMP_vect)
 static void show_temp()
 {
 	timer1_status |= _BV(TIMER1_SHOW_TEMP_BIT);
+	fill_display_register(temp);
 
 	for (;;) {
 		if (button_is_pressed(&BUTTONS_PIN, MINUS_BUTTON_BIT)) {
@@ -311,10 +312,9 @@ int main()
 
 	sei();
 
-	// Сразу запускаем температурное преобразование, чтобы избежать чтения
-	// значения +85 oC, записанного в температурный регистр датчика при подаче
-	// питания
+	// Skip the power-on reset value of the temperature
 	ds18b20_read_temp();
+	while (temp == 0xDEAD);
 
 	// Чтение параметров из EEPROM
 	task = eeprom_read_word(&ee_task);
