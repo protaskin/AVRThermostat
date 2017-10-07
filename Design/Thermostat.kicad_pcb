@@ -15,8 +15,8 @@
   (page A4)
   (title_block
     (title "Thermostat on ATmega8A, DS18B20 and 7-segment Display")
-    (date 2017-07-30)
-    (rev 3.0)
+    (date 2017-10-07)
+    (rev 3.1)
     (company "Artyom Protaskin")
   )
 
@@ -1629,10 +1629,10 @@
     )
   )
 
-  (gr_text "AVRThermostat r3.0\nMade with KiCad" (at 121.92 70.485) (layer F.SilkS)
+  (gr_text "AVRThermostat r3.1\nMade with KiCad" (at 121.92 70.485) (layer F.SilkS)
     (effects (font (size 1.5 1.5) (thickness 0.3)) (justify left))
   )
-  (gr_text "AVRThermostat r3.0\nMade with KiCad" (at 121.92 70.485) (layer B.Cu)
+  (gr_text "AVRThermostat r3.1\nMade with KiCad" (at 121.92 70.485) (layer B.Cu)
     (effects (font (size 1.5 1.5) (thickness 0.3)) (justify right mirror))
   )
   (gr_line (start 120.015 130.81) (end 120.015 59.055) (angle 90) (layer Edge.Cuts) (width 0.15))

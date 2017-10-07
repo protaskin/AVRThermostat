@@ -16,8 +16,8 @@ $Descr A4 11693 8268
 encoding utf-8
 Sheet 1 1
 Title "Thermostat on ATmega8A, DS18B20 and 7-segment Display"
-Date "2017-07-30"
-Rev "3.0"
+Date "2017-10-07"
+Rev "3.1"
 Comp "Artyom Protaskin"
 Comment1 ""
 Comment2 ""
@@ -958,5 +958,5 @@ Wire Wire Line
 Wire Wire Line
 	6200 4600 6200 5300
 Text Notes 550  7700 0    60   ~ 0
-Notes:\n1. CKSEL3:0 = 0100 (internal calibrated RC oscillator @ 8 MHz);\n2. D2 is a green LED (heating is disabled), D3 is a red LED (heating is enabled).
+Fuses ("0" means programmed):\n1. CKSEL3:0 = 0100 (enabling the Internal Calibrated RC Oscillator @ 8 MHz);\n2. BODEN = 0, BODLEVEL = 0, SUT1:0 = 00 (enabling the Internal Brown-out Detector).\n\nNotes:\n1. D2 is a green LED (heating is disabled), D3 is a red LED (heating is enabled).
 $EndSCHEMATC

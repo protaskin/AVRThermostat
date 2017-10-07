@@ -29,7 +29,7 @@ mode, then both leds do not light.
 If the device cannot establish connection with the sensor, the display shows
 an error.
 
-## Schematics and PCB Layout r3.0
+## Schematics and PCB Layout r3.x
 
 A KiCad project, which includes a schematics and PCB layout, is located in
 [the Design directory](Design/). **Please be aware that the project is made from
@@ -38,7 +38,7 @@ errors.**
 
 ### Schematics
 
-![Schematics r3.0](http://artyom.protaskin.ru/storage/avrthermostat/pictures/avrthermostat-schematics-r30.png?2)
+![Schematics r3.1](http://artyom.protaskin.ru/storage/avrthermostat/pictures/avrthermostat-schematics-r31.png)
 
 ### PCB 3D Model
 
